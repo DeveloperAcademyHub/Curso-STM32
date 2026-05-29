@@ -14,6 +14,23 @@
   * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
+	Hardware: NUCLEO-G474RE
+	Objetivo: Gerar sinal PWM no CH1 do TIM2.
+
+	Notas:
+
+		Clock APB: 16 MHz
+			Alvo de 1 kHz: O objetivo é que o timer incremente seu contador exatamente 1000 de vezes por segundo.
+
+		Prescaler (PSC): f_CNT = f_TIM_CLK/(PSC+1)
+			Para transformar 16 MHz em 1 MHz, dividimos por 16.
+			Valor no registrador do PSC: 16−1
+
+		Agora, cada "passo" (tick) do timer dura exatamente 1μs.
+
+		Para atingir o alvo, dado que temos 1MHz, temos que definir o valor do counter_period como: 1M/1k = 1000 (1000-1).
+
+		Então o timer vai contar até 1000 a um passo de 1us, logo ele vai estourar a cada 0.1ms.
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
