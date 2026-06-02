@@ -66,6 +66,50 @@ O modo **Input Capture** é utilizado para medir a frequência, o período ou a 
 
 *   **Dead-Time (Tempo Morto):** Presente nos timers de controle avançado, o Dead-Time insere um atraso entre o desligamento de um sinal e o acionamento de seu complementar. Isso evita curtos-circuitos em pontes H (shoot-through).
 
+    *   **Objetivo:** Evitar o curto-circuito (*shoot-through*), garantindo que um interruptor de potência esteja completamente desligado antes que o outro ligue.
+    *   **Controle:** É configurado através dos bits **DTG[7:0]** no registrador `TIMx_BDTR`.
+
+    A duração do tempo morto depende de uma hierarquia de clocks baseada no clock interno do timer ($T_{CK\_INT}$):
+
+    - **Clock de Amostragem ($T_{DTS}$):** Definido pelos bits `CKD[1:0]` no registrador `TIMx_CR1`.
+        *   `00`: $T_{DTS} = T_{CK\_INT}$
+        *   `01`: $T_{DTS} = 2 \times T_{CK\_INT}$
+        *   `10`: $T_{DTS} = 4 \times T_{CK\_INT}$
+    - **Clock do Dead-Time ($T_{dtg}$):** Derivado de $T_{DTS}$ conforme a faixa de valor definida nos bits superiores de `DTG`.
+
+        | Se DTG[7:5] for... | Faixa de Duração do Dead-Time | Clock de Base ($T_{dtg}$) |
+        | :--- | :--- | :--- |
+        | `0xx` | $DTG[7:0] \times T_{dtg}$ | $T_{DTS}$ |
+        | `10x` | $(64 + DTG[5:0]) \times T_{dtg}$ | $2 \times T_{DTS}$ |
+        | `110` | $(32 + DTG[4:0]) \times T_{dtg}$ | $8 \times T_{DTS}$ |
+        | `111` | $(32 + DTG[4:0]) \times T_{dtg}$ | $16 \times T_{DTS}$ |
+
+
+    **Exemplo:**
+    *   **Frequência do Timer ($f_{CK\_INT}$):** 50 MHz.
+    *   **Período de Oscilação ($T_{CK\_INT}$):** $20\text{ ns}$.
+    *   **Dead-time desejado:** $14\text{ }\mu s$ ($14.000\text{ ns}$).
+    *   **Configuração de Clock:** Assumindo `CKD[1:0] = 00`, então $T_{DTS} = T_{CK\_INT} = 20\text{ ns}$.
+
+        **Passo 1: Identificar a faixa de clock adequada**
+        Precisamos encontrar qual multiplicador de $T_{dtg}$ alcança $14.000\text{ ns}$:
+        1.  **Faixa 1 ($T_{dtg} = 20\text{ ns}$):** Máximo $127 \times 20\text{ ns} = 2.540\text{ ns}$ (Insuficiente).
+        2.  **Faixa 2 ($T_{dtg} = 40\text{ ns}$):** Máximo $(64+63) \times 40\text{ ns} = 5.080\text{ ns}$ (Insuficiente).
+        3.  **Faixa 3 ($T_{dtg} = 160\text{ ns}$):** Máximo $(32+31) \times 160\text{ ns} = 10.080\text{ ns}$ (Insuficiente).
+        4.  **Faixa 4 ($T_{dtg} = 320\text{ ns}$):** Máximo $(32+31) \times 320\text{ ns} = 20.160\text{ ns}$ (**Faixa Correta!**).
+
+        **Passo 2: Calcular o valor dos bits de dados**
+        Para a Faixa 4, os bits `DTG[7:5]` devem ser `111`. Usamos a fórmula:
+        $$\text{Dead-time} = (32 + \text{valor\_bits}) \times T_{dtg}$$
+        $$14.000\text{ ns} = (32 + x) \times 320\text{ ns}$$
+        $$32 + x = 14.000 / 320 = 43,75$$
+        $$x = 11,75 \approx 12 \text{ (arredondando)}$$
+
+        **Passo 3: Montar o registrador DTG[7:0]**
+        *   **Bits de Faixa [7:5]:** `111`
+        *   **Bits de Valor [4:0]:** `01100` (12 em binário).
+        *   **Resultado Final:** DTG = `11101100` (binário) $\rightarrow$ **0xEC** (hexadecimal) $\rightarrow$ **236** (decimal).
+
 *   **HRTIM (Timer de Alta Resolução):** Exclusivo da série STM32G474, oferece uma resolução incrível de **184 ps**. É um builder de formas de onda complexas projetado para fontes chaveadas de alta frequência.
 
 # Controle via Biblioteca HAL
