@@ -64,7 +64,8 @@ O modo **Input Capture** é utilizado para medir a frequência, o período ou a 
 
 # Recursos Avançados: Dead-Time e HRTIM
 
-*   **Dead-Time (Tempo Morto):** Presente nos timers de controle avançado (TIM1, TIM8, TIM20), o Dead-Time insere um atraso entre o desligamento de um sinal e o acionamento de seu complementar. Isso evita curtos-circuitos em pontes H (shoot-through).
+*   **Dead-Time (Tempo Morto):** Presente nos timers de controle avançado, o Dead-Time insere um atraso entre o desligamento de um sinal e o acionamento de seu complementar. Isso evita curtos-circuitos em pontes H (shoot-through).
+
 *   **HRTIM (Timer de Alta Resolução):** Exclusivo da série STM32G474, oferece uma resolução incrível de **184 ps**. É um builder de formas de onda complexas projetado para fontes chaveadas de alta frequência.
 
 # Controle via Biblioteca HAL
@@ -81,6 +82,9 @@ A biblioteca HAL fornece funções específicas para iniciar e parar as funçõe
 # Referências
 
 *   **RM0440:** Manual de Referência - Série STM32G4.
+    - Complementary outputs and dead-time insertion - Pg.1189
 *   **RM0351:** Manual de Referência - Série STM32L4.
+*   **AN4013:** Application note - STM32 cross-series timer overview
+    - Complementary signal and dead time feature - Pg.26
 *   **UM2570:** Manual do Driver HAL/LL para STM32G4.
 *   **Datasheet STM32G474RE / STM32L476RG.**
