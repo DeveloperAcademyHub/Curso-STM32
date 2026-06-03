@@ -1,7 +1,3 @@
-Aqui estão suas anotações sobre **PWM, Output Compare e Input Capture** revisadas e aprimoradas, com detalhes técnicos específicos das séries **STM32G4** e **STM32L4** extraídos dos manuais de referência e datasheets.
-
----
-
 # PWM, Output Compare e Input Capture no STM32
 
 ## Objetivo
