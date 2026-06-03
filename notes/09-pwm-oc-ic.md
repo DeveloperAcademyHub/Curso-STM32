@@ -50,6 +50,10 @@ A configuração do sinal PWM depende de três registradores principais: **PSC**
 *   **Edge-Aligned (Alinhado pela borda):** O contador conta de 0 até o valor ARR. O sinal muda de estado quando o contador atinge o valor CCR.
 *   **Center-Aligned (Alinhado pelo centro):** O contador conta de 0 até ARR e depois de ARR até 0. Isso gera um PWM simétrico, ideal para controle de motores, pois reduz harmônicos e ruído eletromagnético.
 
+<p align="center">
+  <img src="imgs/alinhamento_pwm.png" alt="Modos de alinhamento PWM" width="400">
+</p>
+
 # Output Compare (OC)
 
 O modo **Output Compare** é usado para controlar uma forma de onda de saída ou indicar quando um período de tempo específico expirou.
@@ -71,25 +75,25 @@ O modo **Input Capture** é utilizado para medir a frequência, o período ou a 
 
     A duração do tempo morto depende de uma hierarquia de clocks baseada no clock interno do timer ($T_{CK\_INT}$):
 
-    - **Clock de Amostragem ($T_{DTS}$):** Definido pelos bits `CKD[1:0]` no registrador `TIMx_CR1`.
-        *   `00`: $T_{DTS} = T_{CK\_INT}$
-        *   `01`: $T_{DTS} = 2 \times T_{CK\_INT}$
-        *   `10`: $T_{DTS} = 4 \times T_{CK\_INT}$
-    - **Clock do Dead-Time ($T_{dtg}$):** Derivado de $T_{DTS}$ conforme a faixa de valor definida nos bits superiores de `DTG`.
+    - **Clock de Amostragem ($TDTS$):** Definido pelos bits `CKD[1:0]` no registrador `TIMx_CR1`.
+        *   `00`: $TDTS = T_{CK\_INT}$
+        *   `01`: $TDTS = 2 \times T_{CK\_INT}$
+        *   `10`: $TDTS = 4 \times T_{CK\_INT}$
+    - **Clock do Dead-Time ($T_{dtg}$):** Derivado de $TDTS$ conforme a faixa de valor definida nos bits superiores de `DTG`.
 
         | Se DTG[7:5] for... | Faixa de Duração do Dead-Time | Clock de Base ($T_{dtg}$) |
         | :--- | :--- | :--- |
-        | `0xx` | $DTG[7:0] \times T_{dtg}$ | $T_{DTS}$ |
-        | `10x` | $(64 + DTG[5:0]) \times T_{dtg}$ | $2 \times T_{DTS}$ |
-        | `110` | $(32 + DTG[4:0]) \times T_{dtg}$ | $8 \times T_{DTS}$ |
-        | `111` | $(32 + DTG[4:0]) \times T_{dtg}$ | $16 \times T_{DTS}$ |
+        | `0xx` | $DTG[7:0] \times T_{dtg}$ | $TDTS$ |
+        | `10x` | $(64 + DTG[5:0]) \times T_{dtg}$ | $2 \times TDTS$ |
+        | `110` | $(32 + DTG[4:0]) \times T_{dtg}$ | $8 \times TDTS$ |
+        | `111` | $(32 + DTG[4:0]) \times T_{dtg}$ | $16 \times TDTS$ |
 
 
     **Exemplo:**
     *   **Frequência do Timer ($f_{CK\_INT}$):** 50 MHz.
     *   **Período de Oscilação ($T_{CK\_INT}$):** $20\text{ ns}$.
     *   **Dead-time desejado:** $14\text{ }\mu s$ ($14.000\text{ ns}$).
-    *   **Configuração de Clock:** Assumindo `CKD[1:0] = 00`, então $T_{DTS} = T_{CK\_INT} = 20\text{ ns}$.
+    *   **Configuração de Clock:** Assumindo `CKD[1:0] = 00`, então $TDTS = T_{CK\_INT} = 20\text{ ns}$.
 
         **Passo 1: Identificar a faixa de clock adequada**
         Precisamos encontrar qual multiplicador de $T_{dtg}$ alcança $14.000\text{ ns}$:
